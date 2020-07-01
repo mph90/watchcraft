@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ReportsController2 extends Controller
+{
+  // Retrieves data for all tickets and sends it to the tickets view as $tickets
+  public function all()
+  {
+    $tickets = DB::table('users')
+    ->join('ticket_categories', 'tickets.ticket_category_code', '=', 'ticket_categories.ticket_category_code')
+    ->join('branches', 'tickets.branch_id', '=', 'branches.branch_id')
+    ->leftjoin('completed_tickets', 'tickets.ticket_id', '=', 'completed_tickets.ticket_id')
+    ->leftjoin('payments', 'completed_tickets.ticket_id', '=', 'payments.ticket_id')
+    ->select(
+      'tickets.ticket_id',
+      'ticket_categories.name',
+      'branches.location'
+      'tickets.description',
+      'tickets.other_notes',
+      'tickets.date_received',
+      'completed_tickets.date_completed',
+      'payments.paid_date')
+    ->orderBy('tickets.ticket_category_code', 'tickets.ticket_id')
+    ->get();
+
+    return view('tickets')->with('tickets', $tickets);
+  }
+
+  public function customers()
+  {
+    $customers = DB::table('customers')
+    ->select('*')
+    ->get();
+  }
+}
